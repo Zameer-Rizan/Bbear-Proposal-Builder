@@ -74,3 +74,7 @@ New imports preserve highlights and up to eight photos per day. Prices begin as 
 Optional Supabase sign-in, staff-only proposal/revision tables, and private file storage are implemented behind `STORAGE_MODE=supabase`. Local mode remains the default. Follow [the setup guide](docs/SUPABASE-SETUP.md) before enabling it. The SQL migration must be applied by the project owner and staff IDs explicitly approved. Existing records are not moved automatically. Sign-in and the private media import were checked on the configured project; complete the setup guide’s access, session, concurrent-user and restore checks for every deployment.
 
 Photo library: see [docs/PHOTO-LIBRARY.md](docs/PHOTO-LIBRARY.md) for bulk uploads, duplicate checks, private storage and backups.
+
+## Hotels
+
+Hotel search, private PDF/Word uploads, side-by-side contract review, meal/child/date rules, upgrades/offers and proposal stay snapshots are implemented. See [docs/HOTELS.md](docs/HOTELS.md) for the one-time storage setup, supported calculation rules, manual mode and backups. Supplier clarification is required before unresolved rates become reliable quotes. This is a private contract-rate tool, not live hotel booking inventory.
