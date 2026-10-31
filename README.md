@@ -37,13 +37,13 @@ You can set DATA_DIR to another persistent disk folder. Never put live SQLite on
 
 ### Recommended hosted setup
 
-- Managed PostgreSQL (Supabase is supported through its database connection string) for records and revisions.
-- An always-on Node server/container with a private persistent disk for `DATA_DIR/files` and the PDF browser runtime.
+- Supabase mode for staff sign-in, records, revisions and private photos/PDFs; see the setup guide below. A separate PostgreSQL connection option also remains available.
+- An always-on Node server/container for the app and PDF browser runtime. Local/PostgreSQL modes also need private persistent file storage.
 - Separate encrypted off-site backups for database AND files.
-- HTTPS and a strong APP_PASSWORD and SESSION_SECRET. These stay on the server, never in public environment variables.
-- Do not use temporary serverless disk as file storage. Supabase Storage is a future adapter, not implemented in this version. PostgreSQL connectivity is implemented but was not tested against a real Supabase account in this build.
+- HTTPS and approved Supabase staff accounts in cloud mode. Local/shared-password mode needs a strong APP_PASSWORD and SESSION_SECRET. Keep private settings on the server.
+- Do not use temporary serverless disk as local file storage. Cloud mode uses the private Supabase bucket; back it up separately from the database.
 
-Copy `.env.example` to `.env.local` and fill in your own values. Local mode without APP_PASSWORD only accepts API requests on localhost/127.0.0.1. A shared staff password is supported; individual user accounts and roles are not yet implemented. Add reverse-proxy login rate limiting before internet exposure. Keep this build local until hosted access controls and backups are configured and tested.
+Copy `.env.example` to `.env.local` and fill in your own values. Local mode without APP_PASSWORD only accepts API requests on localhost/127.0.0.1. Local mode supports a shared staff password. Supabase mode supports individual approved staff accounts sharing one workspace; granular roles are not implemented. Add reverse-proxy login rate limiting before internet exposure. Keep this build local until hosted access controls and backups are configured and tested.
 
 Changing DATABASE_URL does not migrate your local records automatically. Make a backup and use a reviewed migration before switching a live installation.
 
@@ -68,3 +68,9 @@ Templates share a reliable base layout with style-specific labels and visibility
 
 ## Pricing review and import update
 New imports preserve highlights and up to eight photos per day. Prices begin as Needs pricing. Customer PDFs with prices require staff to mark them Approved after entering a positive quote, expiry and confirmed cost lines. Changes to quote inputs move approved pricing back to Estimate. This is an internal review state, not supplier confirmation or a separate permission role. Historical saved proposals are not automatically overwritten or refreshed. Customer documents omit internal draft, version and reference labels.
+
+## Supabase staff workspace
+
+Optional Supabase sign-in, staff-only proposal/revision tables, and private file storage are implemented behind `STORAGE_MODE=supabase`. Local mode remains the default. Follow [the setup guide](docs/SUPABASE-SETUP.md) before enabling it. The SQL migration must be applied by the project owner and staff IDs explicitly approved. Existing records are not moved automatically. Sign-in and the private media import were checked on the configured project; complete the setup guide’s access, session, concurrent-user and restore checks for every deployment.
+
+Photo library: see [docs/PHOTO-LIBRARY.md](docs/PHOTO-LIBRARY.md) for bulk uploads, duplicate checks, private storage and backups.

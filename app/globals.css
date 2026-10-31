@@ -13,3 +13,22 @@ body{font-size:15px;line-height:1.6;background:var(--cream)}p{color:var(--muted)
 .card-body>small,.card-body>div,.tour-footer small,.revision small,.cost-row small{color:#59665e}@media(max-width:760px){.price-state-box select{font-size:16px}}
 /* Keep photo picker controls reachable while its photo grid scrolls. */
 .photo-picker>.section-heading{position:sticky;top:-25px;z-index:5;background:#fff;margin:-25px -25px 18px;padding:22px 25px 18px;border-bottom:1px solid var(--line);box-shadow:0 4px 10px #253c3306;align-items:flex-start}.photo-picker>.section-heading>div{min-width:0;padding-right:12px}.photo-picker>.section-heading>.icon{width:44px;height:44px;background:#f0f3ee;border:1px solid #dce3d9;border-radius:50%;flex-shrink:0}.photo-picker>.section-heading>.icon:hover{background:#e1e9dd}.photo-picker{overscroll-behavior:contain;scroll-padding-top:120px}@media(max-width:760px){.photo-picker>.section-heading{top:-18px;margin:-18px -18px 16px;padding:18px}.photo-picker>.section-heading>.icon{width:44px;height:44px}.photo-picker>.section-heading h2{font-size:20px}}
+
+/* One clear, consistent icon system across the workspace. */
+.lucide{flex-shrink:0;stroke-width:1.85;vertical-align:middle}
+.primary>.lucide,.secondary>.lucide,.text-button>.lucide{width:18px;height:18px}
+.nav-icon{width:32px;height:32px;display:grid;place-items:center;border-radius:9px;background:#f0f3ef;color:#52665a;flex-shrink:0}
+nav button{gap:11px;padding:10px 12px}nav button.active .nav-icon{background:#d4e4d6;color:#244d36}
+nav button:hover .nav-icon{background:#e1e9df}
+.editor-tabs button{display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.editor-tabs button .lucide{color:#66796b}.editor-tabs button.selected .lucide{color:#245238}
+.editor-heading span.saved,.editor-heading span.unsaved{display:inline-flex;align-items:center;gap:6px}
+.staff-icon{width:34px;height:34px;border:1px solid #dce5db;border-radius:50%;display:grid;place-items:center;background:#edf3eb;color:#46624e}
+.icon{min-width:40px;min-height:40px}.icon>.lucide{width:19px;height:19px}.icon[aria-label^="Remove"]:hover{background:#f8e9e5;color:#9b4233}
+.setting-label{display:inline-flex;align-items:center;gap:10px}.setting-label .lucide{color:#63786a}
+.text-button{gap:8px;min-height:40px}.stat-icon .lucide{width:22px;height:22px}
+@media(max-width:760px){.editor-tabs button{padding:10px 13px;gap:7px}.editor-tabs button .lucide{width:17px;height:17px}.icon{min-width:44px;min-height:44px}.day-buttons{gap:2px}.day-head{gap:8px}}
+
+.number-field{display:block;min-width:0}.number-field input{font-variant-numeric:tabular-nums}.field-error{display:block;color:#98432f;font-size:12px;line-height:1.5;margin:6px 0 10px}input[aria-invalid="true"]{border-color:#b65d46}input[aria-invalid="true"]:focus{box-shadow:0 0 0 3px #faeae4}.notice{position:sticky;top:0;z-index:35}.modal .field-error{color:#98432f}.photo-grid>p{grid-column:1/-1;padding:25px;text-align:center}
+
+.media-tools{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:12px}.media-search{display:flex;align-items:center;gap:10px;border:1px solid var(--border,#d8dfda);border-radius:8px;background:white;padding:0 12px;flex:1;min-width:180px}.media-search input{border:0;box-shadow:none;min-width:0;width:100%;background:transparent}.media-source-tabs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:22px}.saved-photo-grid figure{margin:0;min-width:0}.saved-photo-grid figure>a,.saved-photo-grid figure>button{display:block;width:100%}.saved-photo-grid figcaption{font-size:13px;line-height:1.5;padding:8px 2px 14px;text-transform:capitalize;color:#43534d}.media-status{display:flex;gap:8px;align-items:center;background:#edf4ef;padding:12px;border-radius:8px}.media-error{color:#a12d20;overflow-wrap:anywhere}.photo-picker .media-library{padding-bottom:16px}@media(max-width:600px){.media-tools .media-search{flex-basis:100%}.saved-photo-grid figcaption{font-size:12px}}

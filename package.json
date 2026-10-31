@@ -14,23 +14,25 @@
     "restore": "tsx scripts/restore.ts"
   },
   "dependencies": {
-    "next": "16.4.3",
-    "react": "19.3.1",
-    "react-dom": "19.3.1",
-    "tailwindcss": "4.3.3",
+    "@supabase/ssr": "^0.12.7",
+    "@supabase/supabase-js": "^2.118.0",
     "@tailwindcss/postcss": "4.3.3",
     "lucide-react": "1.65.0",
-    "zod": "latest",
+    "next": "16.4.3",
     "pg": "latest",
     "playwright": "latest",
-    "sharp": "latest"
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "sharp": "latest",
+    "tailwindcss": "4.3.3",
+    "zod": "latest"
   },
   "devDependencies": {
-    "typescript": "latest",
     "@types/node": "latest",
+    "@types/pg": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
-    "@types/pg": "latest",
-    "tsx": "latest"
+    "tsx": "latest",
+    "typescript": "latest"
   }
 }
