@@ -71,3 +71,17 @@ export function listedRates(contracts:Contract[],q?:StaySearch|null){
  const days=q?nights(q.from,q.to):[];
  return contracts.filter(c=>c.status!=='Archived').flatMap(c=>c.rates.filter(r=>r.amount!==null&&(!q||((!q.roomType||r.room===q.roomType)&&r.plan===q.plan&&q.rooms.some(room=>room.adults===r.occupancy)&&days.some(day=>day>=r.from&&day<=r.to)))).map(r=>({...r,currency:c.currency,contractId:c.id,contractName:c.name,unitConfirmed:c.unitConfirmed,nightlyConfirmed:c.nightlyConfirmed,reviewed:checkedForPricing(c)&&r.checked})));
 }
+
+export type ListedStay={total:number;currency:string;lines:{date:string;room:number;amount:number;contractName:string;page:number;roomType:string}[]}|null;
+// Published SGL/DBL/TPL room amount for the chosen adults per room.
+// Display subtotal only; this never marks a supplier quote approved.
+export function listedStay(contracts:Contract[],q:StaySearch):ListedStay{
+ const days=nights(q.from,q.to),lines:NonNullable<ListedStay>['lines']=[];let currency='';
+ for(const [index,room] of q.rooms.entries())for(const day of days){
+  const matches=contracts.filter(c=>c.status!=='Archived').flatMap(c=>c.rates.filter(r=>r.amount!==null&&!!r.source.trim()&&r.plan===q.plan&&r.occupancy===room.adults&&r.from<=day&&r.to>=day&&(!q.roomType||r.room===q.roomType)).map(r=>({c,r})));
+  if(matches.length!==1)return null;
+  const {c,r}=matches[0];if(!c.currency||currency&&currency!==c.currency)return null;currency=c.currency;
+  lines.push({date:day,room:index+1,amount:r.amount!,contractName:c.name,page:r.page,roomType:r.room});
+ }
+ return lines.length?{total:Math.round(lines.reduce((sum,l)=>sum+l.amount,0)*100)/100,currency,lines}:null;
+}
