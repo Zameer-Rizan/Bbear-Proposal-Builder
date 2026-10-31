@@ -65,3 +65,9 @@ export function quoteStay(contracts:Contract[],q:StaySearch):HotelQuote{
  }
  if(!result.issues.length&&result.lines.length){result.complete=true;result.total=total/100;}return result;
 }
+
+// Source-listed amounts are for inspection only. They never become a payable stay total.
+export function listedRates(contracts:Contract[],q?:StaySearch|null){
+ const days=q?nights(q.from,q.to):[];
+ return contracts.filter(c=>c.status!=='Archived').flatMap(c=>c.rates.filter(r=>r.amount!==null&&(!q||((!q.roomType||r.room===q.roomType)&&r.plan===q.plan&&q.rooms.some(room=>room.adults===r.occupancy)&&days.some(day=>day>=r.from&&day<=r.to)))).map(r=>({...r,currency:c.currency,contractId:c.id,contractName:c.name,unitConfirmed:c.unitConfirmed,nightlyConfirmed:c.nightlyConfirmed,reviewed:checkedForPricing(c)&&r.checked})));
+}
