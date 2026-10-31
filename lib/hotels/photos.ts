@@ -7,3 +7,5 @@ export const officialHotelPhotos=[
 ];
 const key=(s:string)=>s.toLowerCase().replace(/[’']/g,'').replace(/[^a-z0-9]/g,'');
 export function hotelPhoto(h:Hotel){return h.photo||officialHotelPhotos.find(p=>key(p.name)===key(h.name))?.image||'';}
+
+export function officialHotelPhoto(h:Hotel){return !h.photo?officialHotelPhotos.find(p=>key(p.name)===key(h.name))||null:null;}
