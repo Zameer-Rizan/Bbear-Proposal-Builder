@@ -32,3 +32,12 @@ nav button:hover .nav-icon{background:#e1e9df}
 .number-field{display:block;min-width:0}.number-field input{font-variant-numeric:tabular-nums}.field-error{display:block;color:#98432f;font-size:12px;line-height:1.5;margin:6px 0 10px}input[aria-invalid="true"]{border-color:#b65d46}input[aria-invalid="true"]:focus{box-shadow:0 0 0 3px #faeae4}.notice{position:sticky;top:0;z-index:35}.modal .field-error{color:#98432f}.photo-grid>p{grid-column:1/-1;padding:25px;text-align:center}
 
 .media-tools{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:12px}.media-search{display:flex;align-items:center;gap:10px;border:1px solid var(--border,#d8dfda);border-radius:8px;background:white;padding:0 12px;flex:1;min-width:180px}.media-search input{border:0;box-shadow:none;min-width:0;width:100%;background:transparent}.media-source-tabs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:22px}.saved-photo-grid figure{margin:0;min-width:0}.saved-photo-grid figure>a,.saved-photo-grid figure>button{display:block;width:100%}.saved-photo-grid figcaption{font-size:13px;line-height:1.5;padding:8px 2px 14px;text-transform:capitalize;color:#43534d}.media-status{display:flex;gap:8px;align-items:center;background:#edf4ef;padding:12px;border-radius:8px}.media-error{color:#a12d20;overflow-wrap:anywhere}.photo-picker .media-library{padding-bottom:16px}@media(max-width:600px){.media-tools .media-search{flex-basis:100%}.saved-photo-grid figcaption{font-size:12px}}
+
+/* Keep native select behavior while giving dropdowns a clear, consistent control. */
+select:not([multiple]){appearance:none;-webkit-appearance:none;background-color:#fff;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23566b5c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 10 5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;background-size:16px;padding-right:42px;cursor:pointer;transition:border-color .15s,box-shadow .15s,background-color .15s}
+select:not([multiple]):hover{border-color:#91a996}
+select:not([multiple]):focus-visible{border-color:#4f795b;box-shadow:0 0 0 3px #e5ede5}
+select:not([multiple]):disabled{cursor:not-allowed;background-color:#f3f5f1;color:#7b837c;opacity:.8}
+select:not([multiple]) option{background:#fff;color:#26362f}
+select:not([multiple])::-ms-expand{display:none}
+@media(max-width:760px){select:not([multiple]){background-position:right 12px center;padding-right:40px}}
