@@ -29,7 +29,7 @@ Contracts begin **Needs checking**. To mark one Reviewed, confirm currency, per-
 - Confirmed nightly season splitting; other cross-season methods are not implemented and must not be approved using the nightly checkbox.
 - Explicit per-person board changes and per-room upgrades, with direct plan/room rates taking precedence.
 - Confirmed child age bands, sharing limits, base/target-plan charges and special-date child age ranges.
-- Date restrictions and compulsory per-person event charges.
+- Date restrictions and compulsory special-date charges. Events can apply to one date or an inclusive night range, use per-person or per-room pricing, and charge once per stay window or per applicable night. Child age bands, meal-plan scope, source page and source wording are recorded; missing verification keeps the final total incomplete. Optional event charges are not part of this automatic total and must be clearly quoted separately after review.
 - Best single confirmed eligible early-booking offer across the stay, with explicit discounted components, lead time, minimum nights and travel window. Offers do not stack. Eligibility uses the selected booking date. Other deal types, stay/pay offers, market/channel-specific eligibility or partially qualifying stays require manual review; do not approve a contract as representable if its applicable rules are unsupported.
 - Fixed minor-unit arithmetic, transparent line breakdowns and blocking for incomplete/mixed-currency totals.
 
