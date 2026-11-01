@@ -2,6 +2,8 @@
 
 Open **Hotels** in the workspace. Search by destination, dates, rooms, guests and meal plan. Filters include verified star category, room type, budget and rates needing review. Use ages at travel and assign children to the room they share. Unknown prices display zero with a check-needed label; they are not free and cannot be added as complete costs.
 
+Hotel names are checked for case/spacing duplicates when saved. In Supabase mode, run `supabase/migrations/202611020001_unique_hotel_names.sql` to enforce the same rule in the database and protect against simultaneous duplicate creation. The migration stops without changing data if duplicates already exist; review those records before retrying.
+
 ## Setup
 
 The project owner runs `supabase/migrations/202611010001_hotels.sql` once in the Supabase SQL Editor. It creates separate hotel/contract/history tables, an optimistic save RPC and a private `bbear-contracts` bucket. Existing proposal tables are unchanged. Every approved `bbear_staff` account can read and review hotel data; this release does not introduce separate reviewer roles. Public/anon access is not granted. Original PDFs and Word files are served through authenticated routes.
@@ -9,6 +11,8 @@ The project owner runs `supabase/migrations/202611010001_hotels.sql` once in the
 ## Upload and review
 
 Use **Upload contracts** for PDFs and `.docx` files up to 4 MB each. Several files are processed sequentially with progress; keep the page open. Successful files persist if a later upload fails. Select an existing hotel before uploading another season or amendment. Exact SHA256 duplicates are skipped. Unreadable/encrypted documents are not assigned invented rates.
+
+One source file can currently belong to only one hotel record. Group contracts that list several properties must be split into property-specific source files/rate records before upload; do not attach the same full group PDF to several hotels. A future shared-source workflow should store the confidential original once and link each verified property/season table to its page range.
 
 A failed/unknown extraction leaves the original available for manual review. Without the optional API connection, PDF/Word source text can be read but new table formats are not automatically understood. PDFs can be viewed alongside the editor; Word originals are downloadable and extracted text is shown. Scanned PDFs without readable text require manual entry in this release. There is no unattended OCR worker or durable background queue; extraction is a retryable per-document request.
 
