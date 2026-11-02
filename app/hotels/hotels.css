@@ -22,3 +22,24 @@
 .ht-listed{margin:24px 0;padding:18px;border:1px solid #dce4e8;border-radius:10px;background:#fff}.ht-listed h3{margin-top:0}.ht-listed td small{display:block;margin-top:5px;color:#5b6770}.ht-listed details{margin-top:8px}.ht-card-price strong{overflow-wrap:anywhere}.ht-card-price small{line-height:1.5}
 .ht-star-source{display:inline-flex;margin-top:4px;color:#13633c;font-size:11px;text-decoration:underline;text-underline-offset:2px}.ht-price-warning{color:#985515;font-size:11px!important}
 .ht-date-event{color:#895400!important;font-size:11px!important;font-weight:700}.ht-date-specials{display:inline-flex;margin-top:5px;padding:5px 9px;border-radius:6px;background:#fff5dc;color:#784c00;font-size:12px;font-weight:700}.ht-event-charge{color:#784c00!important;font-weight:700}
+
+/* Keep the main filters and sort control in view while scanning long result lists. */
+.ht-filter{position:sticky;top:12px;max-height:calc(100dvh - 24px);overflow:auto;overscroll-behavior:contain;scrollbar-gutter:stable}
+.ht-sort{position:sticky;top:0;z-index:5;padding:9px 0;background:#fff}
+.ht-tags{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.ht-kind-source{display:inline-flex;margin:4px 0;color:#13633c;font-size:11px;text-decoration:underline;text-underline-offset:2px}
+.ht-meal-adjustment{color:#13633c!important;font-weight:600}
+@media(max-width:760px){.ht-filter{position:static;max-height:none;overflow:visible}.ht-sort{top:0;padding:8px 0}}
+
+/* Clear meal inclusions on each hotel result without suggesting unlisted benefits. */
+.ht-meal-details{margin-top:12px;padding:10px 12px;border:1px solid #e4ebe5;border-radius:7px;background:#f7faf7;display:grid;gap:8px;max-width:520px;font-size:12px;line-height:1.4}
+.ht-meal-title{font-size:12px;color:#234435}
+.ht-meal-row{display:grid;grid-template-columns:18px minmax(0,1fr);gap:7px;align-items:start;color:#3f4d45}
+.ht-meal-row strong{display:block;color:#1e3328;font-size:12px}
+.ht-included-mark,.ht-not-included-mark{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;border-radius:50%;background:#e3f3e8;color:#087c3a}
+.ht-not-included-mark{background:#f1f1ef;color:#647068}
+.ht-meal-unavailable{color:#7a5a18}
+.ht-card-price{justify-content:flex-start;align-self:stretch;padding:8px 0}
+@media(max-width:1100px){.ht-card-price{padding-top:0}}
+@media(max-width:760px){.ht-meal-details{padding:9px 10px;margin-top:10px;font-size:11px}.ht-meal-title,.ht-meal-row strong{font-size:11px}.ht-card-price{padding:0}}
+.ht-room-type-tag{display:inline-flex;align-self:flex-start;max-width:100%;padding:4px 8px;border-radius:5px;background:#eef6ef;border:1px solid #dceade;color:#234b31;font-size:13px;font-weight:700;line-height:1.35;overflow-wrap:anywhere}

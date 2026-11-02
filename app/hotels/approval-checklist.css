@@ -1,0 +1,15 @@
+.ht-approval-checklist{margin:14px 0 20px;padding:14px;border:1px solid #d9e3dc;border-radius:8px;background:#f6faf6}
+.ht-approval-checklist__head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+.ht-approval-checklist__head strong{display:block;font-size:15px}
+.ht-approval-checklist__head small{display:block;margin-top:2px;color:#5b665e}
+.ht-approval-checklist__count{flex:none;padding:5px 9px;border-radius:20px;background:#fff3df;color:#885300;font-size:12px;font-weight:700}
+.ht-approval-checklist__count.is-ready{background:#e5f4e9;color:#176a3b}
+.ht-approval-checklist__items{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.ht-approval-checklist__item{display:flex;align-items:flex-start;gap:9px;width:100%;padding:10px;text-align:left;border:1px solid #e0e5e1;border-radius:6px;background:#fff;color:#202820}
+.ht-approval-checklist__item:hover{border-color:#16834c;background:#fbfefb}
+.ht-approval-checklist__item>svg{flex:none;margin-top:1px;color:#a45e00}
+.ht-approval-checklist__item.is-done>svg{color:#16834c}
+.ht-approval-checklist__item span{min-width:0}
+.ht-approval-checklist__item b{display:block;font-size:13px}
+.ht-approval-checklist__item small{display:block;margin-top:3px;color:#5b665e;font-size:12px;line-height:1.4}
+@media(max-width:760px){.ht-approval-checklist__items{grid-template-columns:1fr}.ht-approval-checklist__head{align-items:flex-start}}
