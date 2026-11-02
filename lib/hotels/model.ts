@@ -230,6 +230,14 @@ export function eventsFor(c:Contract):ContractEvent[]{
   if(sigiriyaChristmasDateUnclear&&['12-24','12-25'].includes(monthDay)&&/christmas|x-?mas/i.test(name))return false;
   return true;
  });
+ // Some contracts have both a hotel-specific parser and the general festive
+ // supplement parser. Collapse entries that describe the same charge so the
+ // same source line cannot be added to a stay twice (or more).
+ const eventKey=(e:ContractEvent)=>JSON.stringify([
+  e.date,e.through||e.date,eventNameForDate(e.date,e.name).trim().toLowerCase(),e.basis||'person_once',
+  [...e.plans].sort(),e.adult,e.child,e.roomAmount??null,e.childMin,e.childMax,
+ ]);
+ const uniqueParsed=[...new Map(verifiedParsed.map(e=>[eventKey(e),e])).values()];
  // When the source text supplies a complete, exact event row, prefer that
  // parsed row over an older manually entered copy so child-age limits and meal
  // plan splits don't get lost in stale saved values.
@@ -239,9 +247,9 @@ export function eventsFor(c:Contract):ContractEvent[]{
   if(walaaYearConflict&&['12-24','12-31'].includes(monthDay)&&Number(e.date.slice(0,4))===2026)return false;
   if(acresWinterYearConflict&&['12-24','12-31'].includes(monthDay)&&Number(e.date.slice(0,4))===2027)return false;
   if(sigiriyaChristmasDateUnclear&&['12-24','12-25'].includes(monthDay)&&/christmas|x-?mas/i.test(holidayName))return false;
-  return !verifiedParsed.some(p=>p.date===e.date&&(p.through||p.date)===(e.through||e.date)&&p.name===e.name&&p.adult===e.adult&&samePlanSet(p.plans,e.plans));
+  return !uniqueParsed.some(p=>p.date===e.date&&(p.through||p.date)===(e.through||e.date)&&eventNameForDate(p.date,p.name)===eventNameForDate(e.date,e.name)&&p.adult===e.adult&&samePlanSet(p.plans,e.plans));
  });
- return [...saved,...verifiedParsed];
+ return [...saved,...uniqueParsed];
 }
 function eventNameForDate(day:string,name?:string){
  const holiday=specialDateNames[day.slice(5)];
