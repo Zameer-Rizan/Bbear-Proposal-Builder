@@ -48,6 +48,74 @@ const hiriketiyaRoomRows=[
 ] as const;
 export function sourceRatesFromPages(c:Contract):Rate[]{
  const pages=c.pages||[],text=pages.map(p=>p.text).join('\n').replace(/\s+/g,' ');
+ const splitCompactRateRow=(raw:string,roomColumns:number):number[]=>{
+  const tokens=raw.trim().split(/\s+/).filter(Boolean);
+  if(tokens.length===roomColumns+1&&tokens.every(t=>/^\d+(?:\.\d+)?$/.test(t)))return tokens.map(Number);
+  const compact=raw.replace(/\s+/g,'');if(!/^\d+(?:\.\d+)?$/.test(compact))return [];
+  const candidates:number[][]=[];
+  const walk=(at:number,values:number[])=>{
+   if(values.length===roomColumns+1){if(at===compact.length)candidates.push(values);return;}
+    const remaining=roomColumns-values.length;
+   for(let end=at+1;end<=Math.min(compact.length,at+(values.length===roomColumns?6:3));end++){
+    if(compact[at]==='0'&&end-at>1)continue;
+    const rawValue=compact.slice(at,end);if(!/^\d+(?:\.\d+)?$/.test(rawValue))continue;
+    const value=Number(rawValue);if(!Number.isFinite(value))continue;
+    const isChild=values.length===roomColumns;
+    if(isChild?(value<10||value>500):(value<40||value>2000))continue;
+    const left=compact.length-end;if(left<remaining||left>remaining*6)continue;
+    walk(end,[...values,value]);
+   }
+  };
+  walk(0,[]);
+  return candidates.length===1?candidates[0]:[];
+ };
+ const cinnamon=(()=>{
+  const definitions=[
+   {test:/Cinnamon Bey Beruwala/i,room:'Superior'},
+   // This PDF's footer incorrectly says "On Behalf of Cinnamon Citadel Kandy";
+   // its header and contract code identify Kandy Myst, so prefer that exact hotel.
+   {test:/Kandy Myst by Cinnamon/i,room:'Superior',roomColumns:2},
+   {test:/Cinnamon Citadel Kandy/i,room:'Superior'},
+   {test:/Cinnamon Lodge Habarana/i,room:'Superior'},
+   {test:/Cinnamon Wild Yala/i,room:'Jungle Chalet'},
+   {test:/Hikka Tranz by Cinnamon/i,room:'Superior'},
+   {test:/Trinco Blu by Cinnamon/i,room:'Superior'},
+  ];
+  const match=definitions.find(x=>x.test.test(text));
+  if(match){
+   const month='(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)';
+   const columns=match.roomColumns||3;
+   const amountPattern=Array.from({length:columns+1},()=>'(\\d+(?:\\.\\d+)?)').join('\\s+');
+   // unpdf can join adjacent table cells without spaces (for example,
+   // "May 1, 2026Jun 30, 2026HB9010015040"). Capture each row payload and
+   // split compact figures only when the source columns have one unambiguous parse.
+   const rowRe=new RegExp(`(${month})\\s+(\\d{1,2}),?\\s+(202[67])\\s*(${month})\\s+(\\d{1,2}),?\\s+(202[67])\\s*HB\\s*([\\d.\\s]+)`,'gi');
+   const monthNumber=(value:string)=>{const key=value.slice(0,3).toLowerCase();return ({jan:'01',feb:'02',mar:'03',apr:'04',may:'05',jun:'06',jul:'07',aug:'08',sep:'09',oct:'10',nov:'11',dec:'12'} as Record<string,string>)[key]||'';};
+   const iso=(m:string,d:string,y:string)=>`${y}-${monthNumber(m)}-${d.padStart(2,'0')}`;
+   const page=pages.find(p=>/START DATE/i.test(p.text)&&/MEAL PLAN/i.test(p.text))?.number||1;
+   const rates:Rate[]=[];
+   for(const m of text.matchAll(rowRe)){
+    const from=iso(m[1],m[2],m[3]),to=iso(m[4],m[5],m[6]);
+    const values=splitCompactRateRow(m[7],columns),amounts=values.slice(0,columns);
+    if(values.length!==columns+1)continue;
+    if(!from.includes('-')||!to.includes('-')||amounts.some(n=>!Number.isFinite(n)))continue;
+    for(let i=0;i<columns;i++)rates.push({id:uid(),room:match.room,plan:'HB',occupancy:i+1,from,to,amount:amounts[i],page,source:`Page ${page}: ${match.room} · ${m[1]} ${m[2]}, ${m[3]} through ${m[4]} ${m[5]}, ${m[6]} · HB · ${['Single','Double','Triple'][i]} USD ${amounts[i]} per room per night.`,checked:false});
+    if(match.test.source.includes('Kandy Myst')&&/Triple rooms are available in limited numbers\s*\.\s*A supplement of 50 will apply per room, in addition to the DBL rate/i.test(text)){
+     const double=amounts[1],triple=double+50;
+     rates.push({id:uid(),room:match.room,plan:'HB',occupancy:3,from,to,amount:triple,page,source:`Page ${page}: Kandy Myst rate table lists Double HB USD ${double} per room per night; its explicit triple-room rule adds USD 50 per room to the DBL rate. Derived Triple HB amount USD ${triple} per room per night.`,checked:false});
+    }
+   }
+   return rates;
+  }
+  if(/CINNAMON LIFE AT CITY OF DREAMS/i.test(text)){
+   const rateMatch=/FIT\s*\(Free Independent\s*Traveler\)\s*below\s*10\s*rooms per day\s*(\d+(?:\.\d+)?)\s*(\d+(?:\.\d+)?)\s*(\d+(?:\.\d+)?)/i.exec(text);
+   if(!rateMatch)return [];
+   const room='Premier Life, Cityscape Room',page=pages.find(p=>/ROOM RATES/i.test(p.text))?.number||1;
+   return [1,2,3].map((occupancy,i)=>({id:uid(),room,plan:'BB' as const,occupancy,from:'2026-04-01',to:'2027-03-31',amount:Number(rateMatch[i+1]),page,source:`Page ${page}: FIT, fewer than 10 rooms per day; ${['Single','Double','Triple'][i]} ${['155','168','202'][i]} USD per room per night. Bed & Breakfast, inclusive of taxes.`,checked:false}));
+  }
+  return [];
+ })();
+ if(cinnamon.length)return cinnamon;
  if(/98 Acres Resort & Spa/i.test(text)&&/All Market Travel Agent Rates/i.test(text)&&/Winter 2026\/27/i.test(text)&&/Rates effective from 1st November 2026.*30th April 2027/i.test(text)){
   const seasons=[
    {from:'2026-11-01',to:'2026-12-19',label:'01.11.26–19.12.26',values:[340,380,450,450,480,800,900]},
@@ -108,6 +176,32 @@ function occupancyMatches(c:Contract,r:Rate,room:RoomGuests){
 }
 function mealBoardsFor(c:Contract):Contract['boards']{
  const text=(c.pages||[]).map(p=>p.text).join(' ').replace(/\s+/g,' ');
+ const cinnamon=/(Cinnamon Bey Beruwala|Cinnamon Citadel Kandy|Cinnamon Lodge Habarana|Cinnamon Wild Yala|Hikka Tranz by Cinnamon|Kandy Myst by Cinnamon|Trinco Blu by Cinnamon)/i.exec(text);
+ if(cinnamon){
+  const bb=/BB Reduction\s*[-–:]\s*per person per night\s*\(on HB rate\)\s*\/\s*Adult\s*[-–:]\s*(\d+(?:\.\d+)?)\s*&\s*Child\s*[-–:]\s*(\d+(?:\.\d+)?)/i.exec(text);
+  const fb=/FB Supplement\s*[-–:]\s*per person per night\s*\(on HB rate\)\s*\/\s*Adult\s*[-–:]\s*(\d+(?:\.\d+)?)\s*&\s*Child\s*[-–:]\s*(\d+(?:\.\d+)?)/i.exec(text);
+  const ai=/All Inclusive Supplement\s*[-–:]\s*per person per night\s*\(on HB rate\)\s*\/\s*Adult\s*[-–:]\s*(\d+(?:\.\d+)?)\s*&\s*Child\s*[-–:]\s*(\d+(?:\.\d+)?)/i.exec(text);
+  if(bb&&fb&&ai){
+   const sourcePage=(c.pages||[]).find(p=>/BB Reduction/i.test(p.text))?.number||1;
+   const inferred=[
+    {from:'HB' as const,to:'BB' as const,adult:-Number(bb[1]),child:-Number(bb[2]),source:`Page ${sourcePage}: BB reduction per person per night on the HB rate — adult USD ${bb[1]}, child USD ${bb[2]}.`},
+    {from:'HB' as const,to:'FB' as const,adult:Number(fb[1]),child:Number(fb[2]),source:`Page ${sourcePage}: FB supplement per person per night on the HB rate — adult USD ${fb[1]}, child USD ${fb[2]}.`},
+    {from:'HB' as const,to:'AI' as const,adult:Number(ai[1]),child:Number(ai[2]),source:`Page ${sourcePage}: All Inclusive supplement per person per night on the HB rate — adult USD ${ai[1]}, child USD ${ai[2]}.`},
+   ];
+   return [...c.boards,...inferred.filter(rule=>!c.boards.some(existing=>existing.from===rule.from&&existing.to===rule.to)).map(rule=>({...rule,id:`${c.id}:source:${rule.to}`,checked:false}))];
+  }
+ }
+ if(/CINNAMON LIFE AT CITY OF DREAMS/i.test(text)){
+  const dinner=/Dinner\s*[-–:]?\s*(?:USD\s*)?(\d+(?:\.\d+)?)/i.exec(text),lunch=/Lunch\s*[-–:]?\s*(?:USD\s*)?(\d+(?:\.\d+)?)/i.exec(text);
+  if(dinner&&lunch){
+   const dinnerAdult=Number(dinner[1]),lunchAdult=Number(lunch[1]),dinnerChild=dinnerAdult/2,lunchChild=lunchAdult/2,sourcePage=(c.pages||[]).find(p=>/Breakfast/i.test(p.text)&&/Dinner/i.test(p.text))?.number||2;
+   const inferred=[
+    {from:'BB' as const,to:'HB' as const,adult:dinnerAdult,child:dinnerChild,source:`Page ${sourcePage}: Breakfast is included in BB; dinner USD ${dinnerAdult} per adult. Child meal supplements are 50% for ages 6–11.`},
+    {from:'BB' as const,to:'FB' as const,adult:lunchAdult+dinnerAdult,child:lunchChild+dinnerChild,source:`Page ${sourcePage}: Breakfast is included in BB; lunch USD ${lunchAdult} and dinner USD ${dinnerAdult} per adult. Child meal supplements are 50% for ages 6–11.`},
+   ];
+   return [...c.boards,...inferred.filter(rule=>!c.boards.some(existing=>existing.from===rule.from&&existing.to===rule.to)).map(rule=>({...rule,id:`${c.id}:source:${rule.to}`,checked:false}))];
+  }
+ }
  if(!/Walaa Kulu.*Winter 26-27 Contract/i.test(c.name)||!/Rates Applicable for Set Menu Meal\s*\/\s*Room Supplements/i.test(text))return c.boards;
  const lunch=/Lunch\s*[-–:]\s*USD\s*(\d+(?:\.\d+)?)\s*nett per person/i.exec(text),dinner=/Dinner\s*[-–:]\s*USD\s*(\d+(?:\.\d+)?)\s*nett per person/i.exec(text);
  if(!lunch||!dinner)return c.boards;
