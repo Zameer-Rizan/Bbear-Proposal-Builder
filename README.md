@@ -6,14 +6,13 @@ Private, responsive staff workspace for website tour imports, custom itineraries
 
 Use Node.js 24 LTS or a newer supported LTS. This project was built with Next.js 16.4.3, React 19.3.1 and Tailwind CSS 4.3.3; exact installed dependencies are locked in package-lock.json.
 
+For the shared hotel workspace, start the app with `Start Bbear.sh`. It loads the ignored `.env.supabase-test` file and connects to the configured Supabase project, the same one used by Vercel. If that file is missing or is not set to Supabase mode, the launcher stops instead of silently opening an empty local database. Keep the file private and never commit it. `npm run dev` still uses the default local SQLite store unless you explicitly provide the Supabase settings in your shell.
+
 ```sh
-npm ci
-npm run setup:pdf
-npm run seed
-npm run dev
+./Start\ Bbear.sh
 ```
 
-Open http://127.0.0.1:3000. The seed command only adds the two-day Nuwara Eliya & Ella trip if your database is empty. It never overwrites existing proposals.
+Open the local address shown by Next.js. In Supabase mode, staff sign-in and the hotel records, proposal records, and private files use the shared cloud workspace. Local SQLite records and files are not automatically merged or copied into Supabase; review any local-only records before switching.
 
 For a production build: `npm run build`, then `npm start`. Keep the server running to use the app. The default scripts bind to this computer only.
 

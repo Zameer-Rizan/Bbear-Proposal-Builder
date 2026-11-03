@@ -155,17 +155,23 @@ export function sourceRatesFromPages(c:Contract):Rate[]{
 function hiriketiyaRoomKey(room:string){const n=room.toLowerCase();if(n.includes('suite'))return null;if(n.includes('superior triple'))return 'superior-triple';if(n.includes('superior double'))return 'superior-double';if(n.includes('deluxe'))return 'deluxe';if(/\btpl\b|triple room/.test(n))return 'triple';if(n.includes('double'))return 'basic';return null;}
 export function ratesFor(c:Contract):Rate[]{
  const parsed=sourceRatesFromPages(c);if(!parsed.length)return c.rates;
+ // The PDF parser recreates rate IDs and defaults checks to false. Preserve a
+ // saved review only when every source-backed rate fact still matches, so
+ // opening the editor cannot silently undo a user's checked rates.
+ const sourceKey=(r:Rate)=>JSON.stringify([r.room,r.plan,r.occupancy,r.from,r.to,r.amount,r.page,r.source]);
+ const savedByKey=new Map(c.rates.map(r=>[sourceKey(r),r]));
+ const checkedParsed=parsed.map(r=>{const saved=savedByKey.get(sourceKey(r));return saved?{...r,id:saved.id,checked:saved.checked}:r;});
  if(!/hiriketiyabeach\.lk|Hiriketiya Beach Resort/i.test((c.pages||[]).map(p=>p.text).join(' '))){
-  const keys=new Set(parsed.map(r=>`${r.room}|${r.plan}|${r.occupancy}|${r.from}|${r.to}`));
-  return [...c.rates.filter(r=>!keys.has(`${r.room}|${r.plan}|${r.occupancy}|${r.from}|${r.to}`)),...parsed];
+  const keys=new Set(checkedParsed.map(r=>`${r.room}|${r.plan}|${r.occupancy}|${r.from}|${r.to}`));
+  return [...c.rates.filter(r=>!keys.has(`${r.room}|${r.plan}|${r.occupancy}|${r.from}|${r.to}`)),...checkedParsed];
  }
  const ranges=new Set(hiriketiyaSeasons.map(s=>`${s.from}|${s.to}`));
- const parsedKeys=new Set(parsed.map(r=>`${hiriketiyaRoomKey(r.room)}|${r.plan}|${r.occupancy}|${r.from}|${r.to}`));
+ const parsedKeys=new Set(checkedParsed.map(r=>`${hiriketiyaRoomKey(r.room)}|${r.plan}|${r.occupancy}|${r.from}|${r.to}`));
  const kept=c.rates.filter(r=>{
   const roomKey=hiriketiyaRoomKey(r.room);if(!roomKey||!ranges.has(`${r.from}|${r.to}`))return true;
   return !parsedKeys.has(`${roomKey}|${r.plan}|${r.occupancy}|${r.from}|${r.to}`);
  });
- return [...kept,...parsed];
+ return [...kept,...checkedParsed];
 }
 function occupancyMatches(c:Contract,r:Rate,room:RoomGuests){
  if(r.occupancy===room.adults)return true;
@@ -336,14 +342,24 @@ export function eventsFor(c:Contract):ContractEvent[]{
  // parsed row over an older manually entered copy so child-age limits and meal
  // plan splits don't get lost in stale saved values.
  const samePlanSet=(a:ContractEvent['plans'],b:ContractEvent['plans'])=>a.length===b.length&&a.every(plan=>b.includes(plan));
+ const matchesParsedEvent=(p:ContractEvent,e:ContractEvent)=>p.date===e.date&&(p.through||p.date)===(e.through||e.date)&&eventNameForDate(p.date,p.name)===eventNameForDate(e.date,e.name)&&p.adult===e.adult&&p.child===e.child&&(p.roomAmount??null)===(e.roomAmount??null)&&samePlanSet(p.plans,e.plans);
+ // Parsed source rows define the amounts and dates, but they cannot carry a
+ // user's later verification. Keep that review state and a confirmed child
+ // age band when the saved row matches the exact source facts. Without this,
+ // reopening a contract silently turned verified festive charges back into
+ // unchecked parser output.
+ const parsedWithReview=uniqueParsed.map(p=>{
+  const saved=c.events.find(e=>matchesParsedEvent(p,e));
+  return saved?{...p,id:saved.id,checked:saved.checked,childMin:saved.childMin??p.childMin,childMax:saved.childMax??p.childMax,page:saved.page??p.page,source:saved.source||p.source}:p;
+ });
  const saved=c.events.filter(e=>{
   const monthDay=e.date.slice(5),holidayName=(e.name||'').toLowerCase();
   if(walaaYearConflict&&['12-24','12-31'].includes(monthDay)&&Number(e.date.slice(0,4))===2026)return false;
   if(acresWinterYearConflict&&['12-24','12-31'].includes(monthDay)&&Number(e.date.slice(0,4))===2027)return false;
   if(sigiriyaChristmasDateUnclear&&['12-24','12-25'].includes(monthDay)&&/christmas|x-?mas/i.test(holidayName))return false;
-  return !uniqueParsed.some(p=>p.date===e.date&&(p.through||p.date)===(e.through||e.date)&&eventNameForDate(p.date,p.name)===eventNameForDate(e.date,e.name)&&p.adult===e.adult&&samePlanSet(p.plans,e.plans));
+  return !parsedWithReview.some(p=>matchesParsedEvent(p,e));
  });
- return [...saved,...uniqueParsed];
+ return [...saved,...parsedWithReview];
 }
 function eventNameForDate(day:string,name?:string){
  const holiday=specialDateNames[day.slice(5)];
