@@ -12,7 +12,7 @@ For the shared hotel workspace, start the app with `Start Bbear.sh`. It loads th
 ./Start\ Bbear.sh
 ```
 
-Open the local address shown by Next.js. In Supabase mode, staff sign-in and the hotel records, proposal records, and private files use the shared cloud workspace. Local SQLite records and files are not automatically merged or copied into Supabase; review any local-only records before switching.
+Open http://127.0.0.1:3001. In Supabase mode, staff sign-in and the hotel records, proposal records, and private files use the shared cloud workspace. Local SQLite records and files are not automatically merged or copied into Supabase; review any local-only records before switching.
 
 For a production build: `npm run build`, then `npm start`. Keep the server running to use the app. The default scripts bind to this computer only.
 

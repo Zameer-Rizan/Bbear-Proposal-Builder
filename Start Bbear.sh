@@ -20,4 +20,4 @@ fi
 if [ ! -d node_modules ]; then
   npm ci
 fi
-npm run dev
+npm run dev -- --port "${PORT:-3001}"
